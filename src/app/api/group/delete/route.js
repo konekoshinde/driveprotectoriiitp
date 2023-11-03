@@ -16,17 +16,14 @@ export const POST=async(req)=>{
     try{
         await connect();
         const grp=await Group.findOne({name:request.name});
-
-        if(grp.userIds.length()===1 && grp.userIds[0]===ownerId){
+        const user1=await User.findOne({id:grp.ownerId});
+        // console.log(grp.folderId);
+        if(grp.userIds.length===1 && grp.userIds[0]===grp.ownerId){
             const deleteFolder = await axios.delete(
-                `https://www.googleapis.com/drive/v3/files/${grp.folderID}`,
-                {
-                    name: grpname,
-                    mimeType: 'application/vnd.google-apps.folder',
-                },
+                `https://www.googleapis.com/drive/v3/files/${grp.folderId}`,
                 {
                     headers:{
-                        Authorization:`Bearer ${user.access_token}`, 
+                        Authorization:`Bearer ${user1.access_token}`, 
                         'Content-Type': 'application/json',
                         Accept:'application/json',
                     } 
@@ -35,7 +32,7 @@ export const POST=async(req)=>{
               function notgrp(id,key){
                 return id!=grp._id;
               }
-            const user=await User.findOne({id:grp.ownerId}).groupprikeys.filter(notgrp);
+            const updatedkeys= user1.groupprikeys.filter(notgrp);
             await User.findOneAndUpdate({id:grp.ownerId},{groupprikeys:updatedkeys});
 
             await Group.deleteOne({_id:grp._id});

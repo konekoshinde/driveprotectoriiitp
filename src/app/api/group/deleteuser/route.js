@@ -21,7 +21,7 @@ export const POST=async(req)=>{
 
 
         const perms = await axios.get(
-            `https://www.googleapis.com/drive/v3/files/${grpexist.folderID}/permissions?fields=permission(kind,id,emailAddress,displayName)` ,
+            `https://www.googleapis.com/drive/v3/files/${grpexist.folderId}/permissions?fields=permission` ,
             {
                 headers:{
                     Authorization:`Bearer ${user.access_token}`, 
@@ -35,7 +35,7 @@ export const POST=async(req)=>{
           });
     
           const deletePerms = await axios.delete(
-            `https://www.googleapis.com/drive/v3/files/${grpexist.folderID}/permissions/${permsUser.id}`,
+            `https://www.googleapis.com/drive/v3/files/${grpexist.folderId}/permissions/${permsUser.id}`,
             {
                 headers:{
                     Authorization:`Bearer ${user.access_token}`, 

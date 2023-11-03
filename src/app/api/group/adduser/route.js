@@ -24,11 +24,12 @@ export const POST=async(req)=>{
             throw new Error("grp doesnt exists")
         }
 
-        const folder= await axios.post( `https://www.googleapis.com/drive/v3/files/${grpexist.folderID}/permissions`,
+        const folder= await axios.post( `https://www.googleapis.com/drive/v3/files/${grpexist.folderId}/permissions`,
             {
+                "requests":[{
+                    type: "user",
                 role: "writer",
-                type: "user",
-                emailAddress: request.email,
+                emailAddress: request.email,}]
             },{
 
                 headers:{
@@ -40,10 +41,10 @@ export const POST=async(req)=>{
             await Group.findOneAndUpdate({name:request.name},{$push:{userIds:user.id},$push:{userEmails:user.email}});
             
             // get owner private key
-            const owner=await User.findOne({id:grpexist.ownerid});
+            const owner=await User.findOne({id:grpexist.ownerId});
             const keypri=aes.encrypt(aes.decrypt(grpexist.privatekey,aes.decrypt(owner.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString()).toString(),aes.decrypt(user.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString()).toString();
 
-            await User.findOneAndUpdate({email:request.email},{$push:{grpprikeys:{grpid:grpexist._id,key:keypri}}})
+            await User.findOneAndUpdate({email:request.email},{$push:{groupprikeys:{id:grpexist._id,key:keypri}}})
             
     }
     catch(e){

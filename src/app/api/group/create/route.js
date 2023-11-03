@@ -57,7 +57,7 @@ export const POST=async(req)=>{
                 })
                 const userupdate=User.findOneAndUpdate(
                     {email:user.email},
-                    {$push:{groupprikeys:{grpid:newGrpr._id,key:grpprivatekey}}})
+                    {$push:{groupprikeys:{id:newGrpr._id,key:grpprivatekey}}})
               })
     }
     catch(e){

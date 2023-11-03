@@ -22,9 +22,19 @@ const userSchema = new mongoose.Schema({
     encryptedprivatekey:{
         type:String
     },
-    groupprikeys:{
-        type:Array
-    },
+    groupprikeys:
+        [
+            {
+
+                id:{
+                    type:String
+                },
+                key:{
+                    type:String
+                }
+            }
+        ]
+    ,
     folderId:{
         type:String,
     },
