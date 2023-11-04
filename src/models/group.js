@@ -12,9 +12,6 @@ const groupSchema = new mongoose.Schema({
     publickey:{
         type:String,
     },
-    userIds:{
-        type:Array
-    },
     userEmails:{
         type:Array
     },

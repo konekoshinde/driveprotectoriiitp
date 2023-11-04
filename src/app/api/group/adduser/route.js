@@ -15,21 +15,29 @@ export const POST=async(req)=>{
     console.log(request);
     try{
         await connect();
+        
         const grpexist=await Group.findOne({name:request.name});
-        if(grpexist===null){
+
+        
+        if(grpexist===null || !grpexist.userEmails.includes(request.owner)){
             throw new Error("grp doesnt exists")
         }
+
+        const owner=await User.findOne({id:grpexist.ownerId});
+        
         const user=await User.findOne({email:request.email});
         if(user===null){
             throw new Error("grp doesnt exists")
         }
+        console.log(user.access_token);
 
         const folder= await axios.post( `https://www.googleapis.com/drive/v3/files/${grpexist.folderId}/permissions`,
             {
-                "requests":[{
-                    type: "user",
+                
+                type: "anyone",
                 role: "writer",
-                emailAddress: request.email,}]
+                emailAddress: `${request.email}`,
+                
             },{
 
                 headers:{
@@ -38,18 +46,17 @@ export const POST=async(req)=>{
                     Accept:'application/json',
                 }
             })
-            await Group.findOneAndUpdate({name:request.name},{$push:{userIds:user.id},$push:{userEmails:user.email}});
+            await Group.findOneAndUpdate({name:request.name},{$push:{userEmails:user.email}});
             
             // get owner private key
-            const owner=await User.findOne({id:grpexist.ownerId});
             const keypri=aes.encrypt(aes.decrypt(grpexist.privatekey,aes.decrypt(owner.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString()).toString(),aes.decrypt(user.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString()).toString();
 
-            await User.findOneAndUpdate({email:request.email},{$push:{groupprikeys:{id:grpexist._id,key:keypri}}})
+            await User.findOneAndUpdate({email:request.email},{$push:{groupprikeys:{id:grpexist.name,key:keypri}}})
             
     }
     catch(e){
         console.log(e)
-        return Response.json('err',{status:500})
+        return Response.json(e,{status:500})
     }
     return Response.json('ok');
     

@@ -7,7 +7,7 @@ import aes from "crypto-js/aes";
 import axios from "axios";
 import User from "@/models/users";
 
-
+import Latin1 from "crypto-js/enc-latin1";
 
 const rsa = new RSA();
 
@@ -68,10 +68,16 @@ const authOptions = {
               const pk = keyPair.publicKey.split('\n');
               pk.shift();pk.pop();pk.pop();
               const mpk  =pk.join('\n');
+              const ppk = keyPair.privateKey.split('\n');
+              ppk.shift();ppk.pop();ppk.pop();
+              const mppk  =ppk.join('\n');
 
               const userpublickey=mpk;
+              
 
-              const userprivatekey=aes.encrypt(keyPair.privateKey,process.env.NEXTAUTH_SECRET).toString();
+              const userprivatekey=aes.encrypt(mppk,process.env.NEXTAUTH_SECRET).toString();
+            //  console.log(mppk,"ko");
+            //  console.log(aes.decrypt(userprivatekey,process.env.NEXTAUTH_SECRET).toString(Latin1)===mppk);
               const newUser=User.create({
                 email:user.email,
                 name:user.name,
@@ -91,7 +97,7 @@ const authOptions = {
           else{
             
             
-            const userupdate=User.findOneAndUpdate(
+            await User.findOneAndUpdate(
               {email:user.email},
               {access_token:account.access_token})
             }

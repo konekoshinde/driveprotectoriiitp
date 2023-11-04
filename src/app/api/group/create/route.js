@@ -19,7 +19,7 @@ export const POST=async(req)=>{
         if(grpexist){
             throw new Error("grp exists")
         }
-        const user=await User.findOne({email:request.ownerEmail});
+        const user=await User.findOne({email:request.email});
         console.log(user);
         const folder= await axios.post(`https:www.googleapis.com/drive/v3/files?access_token=${user.access_token}`,
             {
@@ -34,6 +34,7 @@ export const POST=async(req)=>{
                     Accept:'application/json',
                 }
             })
+            
             rsa.generateKeyPair(async function (keyPair){
               
                 const pk = keyPair.publicKey.split('\n');
@@ -46,18 +47,17 @@ export const POST=async(req)=>{
                 const decrptuserPrivatekey=aes.decrypt(user.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString();
                 const grpprivatekey=aes.encrypt(keyPair.privateKey,decrptuserPrivatekey).toString();
 
-                const newGrpr=Group.create({
+                const newGrpr=await Group.create({
                   name:request.name,
                   folderId:folder.data.id,
                   publickey:grppublickey,
                   privatekey:grpprivatekey,
-                  userIds:user.id,
                   userEmails:user.email,
                   ownerId:user.id
                 })
-                const userupdate=User.findOneAndUpdate(
+                await User.findOneAndUpdate(
                     {email:user.email},
-                    {$push:{groupprikeys:{id:newGrpr._id,key:grpprivatekey}}})
+                    {$push:{groupprikeys:{id:newGrpr.name,key:grpprivatekey}}})
               })
     }
     catch(e){
