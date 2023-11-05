@@ -13,7 +13,7 @@ export default function Home() {
    
    function signout(){
       
-      router.push("https://accounts.google.com/Logout")
+      // router.push("https://accounts.google.com/Logout")
       signOut();
       
       

@@ -65,17 +65,12 @@ const authOptions = {
 
             rsa.generateKeyPair(async function (keyPair){
               
-              const pk = keyPair.publicKey.split('\n');
-              pk.shift();pk.pop();pk.pop();
-              const mpk  =pk.join('\n');
-              const ppk = keyPair.privateKey.split('\n');
-              ppk.shift();ppk.pop();ppk.pop();
-              const mppk  =ppk.join('\n');
-
-              const userpublickey=mpk;
               
 
-              const userprivatekey=aes.encrypt(mppk,process.env.NEXTAUTH_SECRET).toString();
+              const userpublickey=keyPair.publicKey.toString();
+              
+
+              const userprivatekey=aes.encrypt(keyPair.privateKey,process.env.NEXTAUTH_SECRET).toString();
             //  console.log(mppk,"ko");
             //  console.log(aes.decrypt(userprivatekey,process.env.NEXTAUTH_SECRET).toString(Latin1)===mppk);
               const newUser=User.create({

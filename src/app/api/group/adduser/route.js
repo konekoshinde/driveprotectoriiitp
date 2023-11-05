@@ -5,6 +5,7 @@ import aes from "crypto-js/aes";
 import axios from "axios";
 import User from "@/models/users";
 import Group from "@/models/group";
+import Latin1 from "crypto-js/enc-latin1";
 
 
 
@@ -49,7 +50,9 @@ export const POST=async(req)=>{
             await Group.findOneAndUpdate({name:request.name},{$push:{userEmails:user.email}});
             
             // get owner private key
-            const keypri=aes.encrypt(aes.decrypt(grpexist.privatekey,aes.decrypt(owner.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString()).toString(),aes.decrypt(user.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString()).toString();
+            const keypri=aes.encrypt(
+                aes.decrypt(grpexist.privatekey,aes.decrypt(owner.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString(Latin1)).toString(Latin1)
+                ,aes.decrypt(user.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString(Latin1)).toString();
 
             await User.findOneAndUpdate({email:request.email},{$push:{groupprikeys:{id:grpexist.name,key:keypri}}})
             

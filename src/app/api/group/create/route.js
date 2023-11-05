@@ -5,6 +5,7 @@ import aes from "crypto-js/aes";
 import axios from "axios";
 import User from "@/models/users";
 import Group from "@/models/group";
+import Latin1 from "crypto-js/enc-latin1";
 
 
 
@@ -37,14 +38,12 @@ export const POST=async(req)=>{
             
             rsa.generateKeyPair(async function (keyPair){
               
-                const pk = keyPair.publicKey.split('\n');
-                pk.shift();pk.pop();pk.pop();
-                const mpk  =pk.join('\n');
+                
   
                 // console.log("public key ",mpk);
                 
-                const grppublickey=mpk;
-                const decrptuserPrivatekey=aes.decrypt(user.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString();
+                const grppublickey=keyPair.publicKey.toString();
+                const decrptuserPrivatekey=aes.decrypt(user.encryptedprivatekey,process.env.NEXTAUTH_SECRET).toString(Latin1);
                 const grpprivatekey=aes.encrypt(keyPair.privateKey,decrptuserPrivatekey).toString();
 
                 const newGrpr=await Group.create({

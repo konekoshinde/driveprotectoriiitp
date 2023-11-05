@@ -15,14 +15,13 @@ export const POST =async(req)=>{
         if(user===null || !grpexist.userEmails.includes(user.email)){
             throw new Error("u r not authorised doesnt exists")
         }
-        const data =await axios.get(`https://www.googleapis.com/drive/v3/files?q='${grpexist.folderId}' in parents`,{
+        const data =await axios.get(`https://www.googleapis.com/drive/v3/files?q='${grpexist.folderId}' in parents & trashed=false`,{
 
         headers:{
             Authorization:`Bearer ${user.access_token}`, 
             'Content-Type': 'application/json',
             Accept:'application/json',
-        }
-        })
+        }})
         return Response.json(data.data.files);
     }
     catch(e){console.log(e);
