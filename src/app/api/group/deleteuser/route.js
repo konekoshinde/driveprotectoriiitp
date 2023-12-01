@@ -12,13 +12,14 @@ export const POST=async(req)=>{
         await connect();
         const grpexist=await Group.findOne({name:request.name});
         
-        if(grpexist===null || !grpexist.userEmails.includes(request.owner)){
-            throw new Error("grp doesnt exists")
+        if(grpexist===null || !grpexist.ownerEmail.includes(request.owner)){
+            return Response.json("u r not the owner")
+        }
+        if(grpexist.userEmails.length===1){
+            return Response.json("u cant remove admin");
         }
         const user=await User.findOne({email:request.email});
-        if(user===null){
-            throw new Error("user doesnt exists")
-        }
+     
 
 
         const perms = await axios.get(
@@ -30,11 +31,12 @@ export const POST=async(req)=>{
                     Accept:'application/json',
                 }
             });
+            console.log("permisiion",perms.data.permissions);
           const permsUser = perms.data.permissions.find((perms) => {
             return perms.emailAddress === req.email;
           });
     
-          const deletePerms = await axios.delete(
+          await axios.delete(
             `https://www.googleapis.com/drive/v3/files/${grpexist.folderId}/permissions/${permsUser.id}`,
             {
                 headers:{
@@ -52,15 +54,15 @@ export const POST=async(req)=>{
 
           await Group.findOneAndUpdate({name:request.name},{userEmails:updatedEmails});
          
-        console.log(grpexist.name);
+        // console.log(grpexist.name);
         let updatedkeys= user.groupprikeys.filter(({id,key})=>{return id!==grpexist.name})
         await User.updateOne({email:request.email},{groupprikeys:updatedkeys});
             
+        return Response.json('deleted successfully');
     }
     catch(e){
         console.log(e)
-        return Response.json(e,{status:500})
+        
     }
-    return Response.json('ok');
-    
+    return Response.json('ok')
 }

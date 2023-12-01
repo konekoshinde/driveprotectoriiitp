@@ -8,13 +8,12 @@ export const POST =async(req)=>{
         connect();
 
         const grpexist=await Group.findOne({name:request.name});
-        if(grpexist===null){
-            throw new Error("grp doesnt exists")
-        }
         const user=await User.findOne({email:request.email});
-        if(user===null || !grpexist.userEmails.includes(user.email)){
-            throw new Error("u r not authorised doesnt exists")
+
+        if(grpexist===null || !grpexist.userEmails.includes(request.email)){
+            return Response.json("grp doesnt exists")
         }
+        
         const data =await axios.get(`https://www.googleapis.com/drive/v3/files?q='${grpexist.folderId}' in parents & trashed=false`,{
 
         headers:{
@@ -24,7 +23,6 @@ export const POST =async(req)=>{
         }})
         return Response.json(data.data.files);
     }
-    catch(e){console.log(e);
-        return Response.json(e)};
-    return Response.json('ok');
+    catch(e){console.log(e);}
+    return Response.json('ok')
 }

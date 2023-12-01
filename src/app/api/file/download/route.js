@@ -20,7 +20,7 @@ export const POST=async(req)=>{
     try{
         connect();
         const grpexist=await Group.findOne({name:request.name});
-        if(grpexist===null || !grpexist.userEmails.includes(request.email))throw new Error("no grp");
+        if(grpexist===null || !grpexist.userEmails.includes(request.email))return Response.json("no grp");
         const user=await User.findOne({email:request.email});
         for(let i=0;i<user.groupprikeys.length;i++){
             if(user.groupprikeys[i].id===request.name){
@@ -120,10 +120,11 @@ export const POST=async(req)=>{
          
         }
         
-        throw new Error("couldnt download");
+        return Response.json("couldnt download");
     }
     catch(e){
-        return Response.json(e);
+        console.log(e)
+        // return Response.json(e);
     }
     return Response.json('ok');
 }

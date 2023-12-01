@@ -6,12 +6,12 @@ export const POST= async(req)=>{
     console.log(request.email)
     try{
         connect();
-        const grps=await User.findOne({email:request.email});
+        const user=await User.findOne({email:request.email});
         
         let result=[];
 
-        for(let i=0;i<grps.groupprikeys.length;i++){
-            result.push(grps.groupprikeys[i].id);
+        for(let i=0;i<user.groupprikeys.length;i++){
+            result.push(user.groupprikeys[i].id);
         }
         return Response.json(result);
     }

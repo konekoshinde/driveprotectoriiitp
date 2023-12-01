@@ -18,8 +18,9 @@ export const POST=async(req)=>{
         await connect();
         const grpexist=await Group.exists({name:request.name});
         if(grpexist){
-            throw new Error("grp exists")
+            return Response.json("choose a unique name")
         }
+        
         const user=await User.findOne({email:request.email});
         console.log(user);
         const folder= await axios.post(`https:www.googleapis.com/drive/v3/files?access_token=${user.access_token}`,
@@ -52,16 +53,17 @@ export const POST=async(req)=>{
                   publickey:grppublickey,
                   privatekey:grpprivatekey,
                   userEmails:user.email,
-                  ownerId:user.id
+                  ownerEmail:user.email,
                 })
                 await User.findOneAndUpdate(
                     {email:user.email},
                     {$push:{groupprikeys:{id:newGrpr.name,key:grpprivatekey}}})
               })
+              return Response.json("created successfully")
     }
     catch(e){
         console.log(e)
-        return Response.json('err',{status:500})
+        // return Response.json(e)
     }
     return Response.json('ok');
     

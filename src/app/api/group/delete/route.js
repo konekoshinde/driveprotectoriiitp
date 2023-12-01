@@ -16,14 +16,14 @@ export const POST=async(req)=>{
     try{
         await connect();
         const grp=await Group.findOne({name:request.name});
-        const user1=await User.findOne({id:grp.ownerId});
-        if(grp===null || !grp.userEmails.includes(request.owner)){
-            throw new Error("grp doesnt exists");
+        if(grp===null || !grp.ownerEmail.includes(request.owner)){
+            return Response.json("grp doesnt exists");
         }
+        const user1=await User.findOne({email:request.owner});
         
         // console.log(grp.folderId);
         if(grp.userEmails.length===1 && grp.userEmails[0]===request.owner){
-            const deleteFolder = await axios.delete(
+            await axios.delete(
                 `https://www.googleapis.com/drive/v3/files/${grp.folderId}`,
                 {
                     headers:{
@@ -37,17 +37,17 @@ export const POST=async(req)=>{
                 return id!=grp.name;
               }
             const updatedkeys= user1.groupprikeys.filter(notgrp);
-            await User.findOneAndUpdate({id:grp.ownerId},{groupprikeys:updatedkeys});
+            await User.findOneAndUpdate({email:request.owner},{groupprikeys:updatedkeys});
 
             await Group.deleteOne({_id:grp._id});
              
         }
         
+        return Response.json('successfully deleted');
     }
     catch(e){
         console.log(e)
-        return Response.json('err',{status:500})
+        return Response.json(e)
     }
-    return Response.json('ok');
-    
+    return Response.json('ok')
 }

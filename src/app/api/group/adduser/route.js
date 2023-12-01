@@ -20,22 +20,22 @@ export const POST=async(req)=>{
         const grpexist=await Group.findOne({name:request.name});
 
         
-        if(grpexist===null || !grpexist.userEmails.includes(request.owner)){
-            throw new Error("grp doesnt exists")
+        if(grpexist===null || !grpexist.ownerEmail.includes(request.owner)){
+            return Response.json("grp doesnt exists")
         }
 
-        const owner=await User.findOne({id:grpexist.ownerId});
+        const owner=await User.findOne({email:request.owner});
         
         const user=await User.findOne({email:request.email});
         if(user===null){
-            throw new Error("grp doesnt exists")
+            return Response.json("user doesnt exists")
         }
         console.log(user.access_token);
 
-        const folder= await axios.post( `https://www.googleapis.com/drive/v3/files/${grpexist.folderId}/permissions`,
+       await axios.post( `https://www.googleapis.com/drive/v3/files/${grpexist.folderId}/permissions`,
             {
                 
-                type: "anyone",
+                type: "user",
                 role: "writer",
                 emailAddress: `${request.email}`,
                 
@@ -47,6 +47,7 @@ export const POST=async(req)=>{
                     Accept:'application/json',
                 }
             })
+            
             await Group.findOneAndUpdate({name:request.name},{$push:{userEmails:user.email}});
             
             // get owner private key
@@ -56,11 +57,11 @@ export const POST=async(req)=>{
 
             await User.findOneAndUpdate({email:request.email},{$push:{groupprikeys:{id:grpexist.name,key:keypri}}})
             
+            return Response.json('user added successfully');
     }
     catch(e){
         console.log(e)
-        return Response.json(e,{status:500})
+        return Response.json('pls chage the access of drive folder to anyone and editor')
     }
-    return Response.json('ok');
-    
+    return Response.json('ok')
 }

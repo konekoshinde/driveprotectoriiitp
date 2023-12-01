@@ -18,7 +18,8 @@ export const POST=async(req)=>{
     try{
         connect();
         const grpexist=await Group.findOne({name:request.name});
-        if(grpexist===null || !grpexist.userEmails.includes(request.email))throw new Error ("no such grp found");
+        if(grpexist===null || !grpexist.userEmails.includes(request.email))return Response.json("grp doesnt exist");
+
         const user=await User.findOne({email:request.email});
         
         for(let i=0;i<user.groupprikeys.length;i++){
@@ -52,7 +53,7 @@ export const POST=async(req)=>{
                       },
                     }
                   );
-                  const resp = await axios.post(
+                  await axios.post(
                     metadata.headers.location,
                     encryptedFileBuffer,
                     { 
@@ -71,9 +72,10 @@ export const POST=async(req)=>{
               }
         }
         
+        return Response.json('ok');
     }
     catch(e){
         return Response.json(e);
     }
-    return Response.json('ok');
+    return Response.json('ok')
 }

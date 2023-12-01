@@ -15,7 +15,7 @@ const groupSchema = new mongoose.Schema({
     userEmails:{
         type:Array
     },
-    ownerId:{
+    ownerEmail:{
         type:String
     },
     privatekey:{

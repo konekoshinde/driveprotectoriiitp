@@ -13,14 +13,14 @@ export const POST=async(req)=>{
         
         
         const grp=await Group.findOne({name:request.name});
-        if(grp===null || !grp.userEmails.includes(request.email))throw new Error ("no such grp found");
+        if(grp===null || !grp.userEmails.includes(request.email))throw new Error ("u r not admin");
         return Response.json(grp.userEmails);
     }
     catch(e){
         console.log(e)
-        return Response.json('err',{status:500})
+        return Response.json(e)
     }
-
-    return Response.json('ok');
+    return Response.json('ok')
+    
     
 }

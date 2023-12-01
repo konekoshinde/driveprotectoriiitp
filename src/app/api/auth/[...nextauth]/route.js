@@ -73,7 +73,7 @@ const authOptions = {
               const userprivatekey=aes.encrypt(keyPair.privateKey,process.env.NEXTAUTH_SECRET).toString();
             //  console.log(mppk,"ko");
             //  console.log(aes.decrypt(userprivatekey,process.env.NEXTAUTH_SECRET).toString(Latin1)===mppk);
-              const newUser=User.create({
+              await User.create({
                 email:user.email,
                 name:user.name,
                 id:user.id,
